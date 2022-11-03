@@ -60,15 +60,23 @@ class Structures:
 class Locations:
     @classmethod
     def init_locations(cls) -> None:
-        cls.populate_locations()
+        cls._populate_locations()
+        cls.__is_initialized = True
 
     @classmethod
     def locations_example(cls) -> None:
+        if not cls.__is_initialized:
+            cls.init_locations()
+
         print([x for x in Locations.cities.keys()])
         city_name, city_class = next(iter(Locations.cities.items()))
         print('City of name "{0}" has streets with postal codes:'.format(city_name))
         for street in city_class.streets:
             print('{0} - {1}, '.format(street.name, street.postal_code))
+
+    @classmethod
+    def is_initialized(cls) -> bool:
+        return cls.__is_initialized
 
     Faker.seed(1234)
 
@@ -76,6 +84,7 @@ class Locations:
     __DEFAULT_NUMBER_OF_STREETS_PER_CITY = 5
     __DEFAULT_NUMBER_OF_STREETS_PER_POSTAL_CODE = 3
     __faker = Faker()
+    __is_initialized = False
 
     cities = {}
     directory_path = 'Resources/'
@@ -92,7 +101,7 @@ class Locations:
             self.postal_code = postal_code
 
     @classmethod
-    def populate_locations(cls, filename: str = None) -> None:
+    def _populate_locations(cls, filename: str = None) -> None:
         filepath = Locations.directory_path + (filename if filename is not None else Locations.locations_filename)
 
         file = Path(filepath)
