@@ -1,7 +1,5 @@
 from faker import Faker
 import random
-import json
-import csv
 
 from complex_structures import Locations
 
@@ -51,13 +49,3 @@ def gen_ParkingSpot(ID_Building):
 
 def gen_ResidentCard(ID_ParkingSpot, ID_Student, ID_CardStatus):
     return f"('{ID_ParkingSpot}','{ID_Student}','{fake.date()}','{ID_CardStatus}')" 
-
-print(gen_Student())
-print(gen_Employee())
-print(gen_Building())
-print(gen_Application(1,1,1,1,1))
-print(gen_Utensils(1,1,1))
-print(gen_Utensils(1,1,1))
-print(gen_Floor(1))
-print(gen_Room(1))
-print(gen_Rent(1,1,1))
