@@ -25,6 +25,10 @@ def gen_Employee():
     street = random.choice(city.streets)
     return f"('{fake.first_name()}','{fake.last_name()}','{street.name}','{fake.building_number()}','{fake.building_number()}','{city_name}','{street.postal_code}','{fake.ascii_email()}','{fake.phone_number()}','{random.randrange(1000000)/100.0}')"
 
+def gen_Application(ID_Student, ID_Employee, ID_ApplicationStatus, ID_Utensils, ID_ApplicationType):
+    return f"('{ID_Student}','{ID_Employee}','{ID_ApplicationStatus}','{fake.date()}','{ID_Utensils}','{ID_ApplicationType}')"
+
 print(gen_Student())
 print(gen_Employee())
 print(gen_Building())
+print(gen_Application(1,1,1,1,1))
