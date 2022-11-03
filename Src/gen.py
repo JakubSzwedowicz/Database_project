@@ -28,7 +28,11 @@ def gen_Employee():
 def gen_Application(ID_Student, ID_Employee, ID_ApplicationStatus, ID_Utensils, ID_ApplicationType):
     return f"('{ID_Student}','{ID_Employee}','{ID_ApplicationStatus}','{fake.date()}','{ID_Utensils}','{ID_ApplicationType}')"
 
+def gen_Utensils(ID_Laundry, ID_Kitchen, ID_Room):
+    return f"('{fake.paragraph(nb_sentences=1)}','{random.randint(1,8)}','{ID_Laundry}','{ID_Kitchen}','{ID_Room}')"
+
 print(gen_Student())
 print(gen_Employee())
 print(gen_Building())
 print(gen_Application(1,1,1,1,1))
+print(gen_Utensils(1,1,1))
