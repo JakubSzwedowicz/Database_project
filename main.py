@@ -1,3 +1,7 @@
+# Author: Jakub Szwedowicz
+# Date: 02.11.2022
+# e-mail: kuba.szwedowicz@gmail.com
+
 import psycopg2
 from configparser import ConfigParser
 
@@ -51,7 +55,6 @@ def add_partv2(part_name, vendor_list):
             conn.commit()
 
 
-
 def execute_add_part():
     add_partv2('SIM Tray', (1, 2))
     add_partv2('Speaker', (3, 4))
@@ -61,8 +64,12 @@ def execute_add_part():
     add_partv2('LTE Modem', (1, 5))
 
 
+from complex_structures import Locations
+
+
 def main():
-    execute_add_part()
+    # execute_add_part()
+    Locations.populate_locations()
 
 
 if __name__ == '__main__':

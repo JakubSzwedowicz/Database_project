@@ -160,7 +160,7 @@ class Tables:
     class CardStatus(BaseTable):
         __instances: list = []
 
-        class CardStatusEnumeration(Enum, str):
+        class CardStatusEnumeration(Enum):
             valid = 'valid'
             invalid = 'invalid'
 
