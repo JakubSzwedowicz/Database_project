@@ -7,6 +7,13 @@ from decimal import Decimal
 
 
 class Tables:
+    @classmethod
+    def init_statuses(cls) -> None:
+        Tables.StudentStatus.build_instances()
+        Tables.ApplicationType.build_instances()
+        Tables.ApplicationStatus.build_instances()
+        Tables.CardStatus.build_instances()
+
     class BaseTable:
         def __init__(self):
             self.uid = None
@@ -157,27 +164,70 @@ class Tables:
         def __init__(self):
             super().__init__()
 
-    class CardStatus(BaseTable):
-        __instances: list = []
+    class Status(BaseTable):
+        _instances: list = []
+        _enum_fields = Enum
 
-        class CardStatusEnumeration(Enum):
-            valid = 'valid'
-            invalid = 'invalid'
-
-        def __init__(self, status: CardStatusEnumeration):
+        def __init__(self, status: Enum):
             super().__init__()
             self.status = status
-            self._add_instance(self)
 
         @classmethod
         def build_instances(cls):
-            ''' weź to napisz żeby wygenerowało listę możliwych instancji i dodało do __inscances.
-            uid dodam metodą complete_instance jak mi już baza zwróci uid'''
+            for enum in cls._enum_fields:
+                status = cls(enum.value)
+                cls._add_instance(status)
 
         @classmethod
         def get_all_instances(cls) -> list:
-            return cls.__instances
+            return cls._instances
 
         @classmethod
-        def _add_instance(cls, card_status):
-            cls.__instances.append(card_status)
+        def _add_instance(cls, status):
+            cls._instances.append(status)
+
+    class StudentStatus(Status):
+        class StudentStatusEnumeration(Enum):
+            ACTIVE = 'active student'
+            FINISHED = 'finished university'
+            REVOKED = 'student status revoked'
+
+        _instances: list = []
+        _enum_fields = StudentStatusEnumeration
+
+        def __init__(self, status: StudentStatusEnumeration):
+            super().__init__(status)
+
+    class ApplicationType(Status):
+        class ApplicationTypeEnumeration(Enum):
+            PARKING_SPACE = 'application for parking space'
+            DORM = 'application for a room in dormitory'
+
+        _instances: list = []
+        _enum_fields = ApplicationTypeEnumeration
+
+        def __init__(self, status: ApplicationTypeEnumeration):
+            super().__init__(status)
+
+    class ApplicationStatus(Status):
+        class ApplicationStatusEnumeration(Enum):
+            PENDING = 'pending'
+            ACCEPTED = 'accepted'
+            DECLNED = 'declined'
+
+        _instances: list = []
+        _enum_fields = ApplicationStatusEnumeration
+
+        def __init__(self, status: ApplicationStatusEnumeration):
+            super().__init__(status)
+
+    class CardStatus(Status):
+        class CardStatusEnumeration(Enum):
+            VALID = 'valid'
+            INVALID = 'invalid'
+
+        _instances: list = []
+        _enum_fields = CardStatusEnumeration
+
+        def __init__(self, status: CardStatusEnumeration):
+            super().__init__(status)
