@@ -31,8 +31,21 @@ def gen_Application(ID_Student, ID_Employee, ID_ApplicationStatus, ID_Utensils, 
 def gen_Utensils(ID_Laundry, ID_Kitchen, ID_Room):
     return f"('{fake.paragraph(nb_sentences=1)}','{random.randint(1,8)}','{ID_Laundry}','{ID_Kitchen}','{ID_Room}')"
 
+def gen_Floor(ID_Building):
+    return f"('{random.randint(0,10)}','{ID_Building}')"
+
+def gen_Room(ID_Module):
+    return f"('{random.randint(0,999)}','{ID_Module}')"
+
+def gen_Rent(ID_Room, ID_Student, ID_Application):
+    return f"('{ID_Room}','{ID_Student}','{ID_Application}','{fake.date()}')"
+
 print(gen_Student())
 print(gen_Employee())
 print(gen_Building())
 print(gen_Application(1,1,1,1,1))
 print(gen_Utensils(1,1,1))
+print(gen_Utensils(1,1,1))
+print(gen_Floor(1))
+print(gen_Room(1))
+print(gen_Rent(1,1,1))
