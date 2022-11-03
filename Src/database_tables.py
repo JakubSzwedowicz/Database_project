@@ -2,24 +2,34 @@
 # Date: 02.11.2022
 # e-mail: kuba.szwedowicz@gmail.com
 import datetime
+import random
 from enum import Enum
 from decimal import Decimal
 
 
 class Tables:
+    _is_initialized = False
+
     @classmethod
     def init_statuses(cls) -> None:
         Tables.StudentStatus.build_instances()
         Tables.ApplicationType.build_instances()
         Tables.ApplicationStatus.build_instances()
         Tables.CardStatus.build_instances()
+        cls._is_initialized = True
 
     @classmethod
-    def tables_example(cls) -> None:
+    def tables_statuses_example(cls) -> None:
+        if not cls._is_initialized:
+            cls.init_statuses()
         print([x.status for x in Tables.StudentStatus.get_all_instances()])
         print([x.status for x in Tables.ApplicationType.get_all_instances()])
         print([x.status for x in Tables.ApplicationStatus.get_all_instances()])
         print([x.status for x in Tables.CardStatus.get_all_instances()])
+
+    @classmethod
+    def is_initialized(cls) -> bool:
+        return cls._is_initialized
 
     class BaseTable:
         def __init__(self):
@@ -188,6 +198,16 @@ class Tables:
         @classmethod
         def get_all_instances(cls) -> list:
             return cls._instances
+
+        @classmethod
+        def generate_status(cls, index: int = None) -> str:
+            max_index = len(cls._instances) - 1
+            if index is not None:
+                if index > max_index:
+                    raise Exception('Index {0} out of bound [0, {1}]'.format(index, max_index))
+            else:
+                index = random.randint(0, max_index)
+            return f"('{cls._instances[index].status}')"
 
         @classmethod
         def _add_instance(cls, status):

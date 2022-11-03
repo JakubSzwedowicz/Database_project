@@ -66,12 +66,21 @@ def execute_add_part():
     add_partv2('LTE Modem', (1, 5))
 
 
+def examples() -> None:
+    # Tables.tables_statuses_example()
+
+    # Locations.locations_example()
+
+    print(Tables.StudentStatus.generate_status(1))
+    print(Tables.ApplicationStatus.generate_status(2))
+    print(Tables.ApplicationType.generate_status())
+    print(Tables.CardStatus.generate_status())
+
 def main():
     Tables.init_statuses()
     Locations.init_locations()
 
-    # Tables.tables_example()
-    Locations.locations_example()
+    examples()
 
 
 if __name__ == '__main__':
