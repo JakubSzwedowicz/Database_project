@@ -6,7 +6,7 @@ import psycopg2
 from configparser import ConfigParser
 
 
-def config(filename: str = 'database.ini', section: str = 'postgresql') -> dict:
+def config(filename: str = 'Config/database.ini', section: str = 'postgresql') -> dict:
     parser = ConfigParser()
     parser.read(filename)
 
@@ -64,7 +64,7 @@ def execute_add_part():
     add_partv2('LTE Modem', (1, 5))
 
 
-from complex_structures import Locations
+from Src.complex_structures import Locations
 
 
 def main():
