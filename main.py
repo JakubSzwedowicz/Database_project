@@ -5,6 +5,7 @@
 import psycopg2
 from configparser import ConfigParser
 from database_tables import Tables
+from complex_structures import Locations
 
 
 def config(filename: str = 'Config/database.ini', section: str = 'postgresql') -> dict:
@@ -66,13 +67,11 @@ def execute_add_part():
 
 
 def main():
-    # execute_add_part()
-    # Locations.populate_locations()
     Tables.init_statuses()
-    print([x.status for x in Tables.StudentStatus.get_all_instances()])
-    print([x.status for x in Tables.ApplicationType.get_all_instances()])
-    print([x.status for x in Tables.ApplicationStatus.get_all_instances()])
-    print([x.status for x in Tables.CardStatus.get_all_instances()])
+    Locations.init_locations()
+
+    # Tables.tables_example()
+    Locations.locations_example()
 
 
 if __name__ == '__main__':

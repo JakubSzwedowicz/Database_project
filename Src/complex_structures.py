@@ -58,6 +58,18 @@ class Structures:
 
 
 class Locations:
+    @classmethod
+    def init_locations(cls) -> None:
+        cls.populate_locations()
+
+    @classmethod
+    def locations_example(cls) -> None:
+        print([x for x in Locations.cities.keys()])
+        city_name, city_class = next(iter(Locations.cities.items()))
+        print('City of name "{0}" has streets with postal codes:'.format(city_name))
+        for street in city_class.streets:
+            print('{0} - {1}, '.format(street.name, street.postal_code))
+
     Faker.seed(1234)
 
     __DEFAULT_NUMBER_OF_CITIES = 100

@@ -14,6 +14,13 @@ class Tables:
         Tables.ApplicationStatus.build_instances()
         Tables.CardStatus.build_instances()
 
+    @classmethod
+    def tables_example(cls) -> None:
+        print([x.status for x in Tables.StudentStatus.get_all_instances()])
+        print([x.status for x in Tables.ApplicationType.get_all_instances()])
+        print([x.status for x in Tables.ApplicationStatus.get_all_instances()])
+        print([x.status for x in Tables.CardStatus.get_all_instances()])
+
     class BaseTable:
         def __init__(self):
             self.uid = None
