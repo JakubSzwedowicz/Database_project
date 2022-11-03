@@ -40,6 +40,18 @@ def gen_Room(ID_Module):
 def gen_Rent(ID_Room, ID_Student, ID_Application):
     return f"('{ID_Room}','{ID_Student}','{ID_Application}','{fake.date()}')"
 
+def gen_Charge(ID_Student):
+    return f"('{ID_Student}','{fake.date()}','{random.randrange(100000)/100.0}')"
+
+def gen_Payment(ID_Student):
+    return f"('{ID_Student}','{random.randrange(100000)/100.0}','{fake.date()}')"
+
+def gen_ParkingSpot(ID_Building):
+    return f"('{random.randint(1,200)}','{ID_Building}')"
+
+def gen_ResidentCard(ID_ParkingSpot, ID_Student, ID_CardStatus):
+    return f"('{ID_ParkingSpot}','{ID_Student}','{fake.date()}','{ID_CardStatus}')" 
+
 print(gen_Student())
 print(gen_Employee())
 print(gen_Building())
