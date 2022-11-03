@@ -8,6 +8,55 @@ from pathlib import Path
 import csv
 
 
+class Structures:
+    class RoomStructure:
+        def __init__(self, room_table: Tables.Room):
+            self.room_table = room_table
+            self.is_full = False
+
+    class ModuleStructure:
+        def __init__(self, module_table: Tables.Module, number_of_rooms: int):
+            self.module_table = module_table
+            self.number_of_rooms = number_of_rooms
+            self.rooms = []
+            self.is_full = False
+
+    class LaundryStructure:
+        def __init__(self, laundry_table: Tables.Laundry):
+            self.laundry_table = laundry_table
+
+    class KitchenStructure:
+        def __init__(self, kitchen_table: Tables.Kitchen):
+            self.kitchen_table = kitchen_table
+
+    class FloorStructure:
+        def __init__(self, floor_table: Tables.Floor, number_of_modules: int, number_of_laundry_rooms: int,
+                     number_of_kitchen_rooms: int):
+            self.floor_table = floor_table
+            self.number_of_modules = number_of_modules
+            self.number_of_laundry_rooms = number_of_laundry_rooms
+            self.number_of_kitchen_rooms = number_of_kitchen_rooms
+            self.modules = []
+            self.is_full = False
+
+        @classmethod
+        def generate_floor(cls, number_of_modules: int = None, number_of_laundry_rooms: int = None,
+                           number_of_kitchen_rooms: int = None):
+            None
+
+    class BuildingStructure:
+        def __init__(self, building_table: Tables.Building, number_of_floors: int):
+            self.building_table = building_table
+            self.number_of_floors = number_of_floors
+            self.floors = []
+            self.is_full = False
+
+        @classmethod
+        def generate_building(cls, name: str = None, street: str = None, building_number: int = None, city: str = None,
+                              postal_code: str = None):
+            None
+
+
 class Locations:
     Faker.seed(1234)
 
