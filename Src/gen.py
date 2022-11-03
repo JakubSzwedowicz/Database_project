@@ -1,6 +1,10 @@
 from faker import Faker
 import random
 import json
+import csv
+
+from complex_structures import Locations
+Locations._read_from_file(Locations.directory_path+Locations.locations_filename)
 
 fake = Faker()
 
@@ -13,16 +17,20 @@ N_Laundry = 2000
 N_Room = 50000
 
 def gen_Building(id):
+    city_name, city = random.choice(list(Locations.cities.items()))
+    street = random.choice(city.streets)
     return {
         'ID': id, 
         'Name': fake.color_name() + fake.city_suffix(), 
-        'Street': fake.street_name(), 
+        'Street': street.name, 
         'BuildingNumber': random.randint(1,20), 
-        'City': fake.city(), 
-        'PostalCode': fake.postcode()
+        'City': city_name, 
+        'PostalCode': street.postal_code
     }
   
 def gen_Student(id):
+    city_name, city = random.choice(list(Locations.cities.items()))
+    street = random.choice(city.streets)
     return {
         'ID': id,
         'Name': fake.first_name(),
@@ -30,27 +38,31 @@ def gen_Student(id):
         'StudentNumber': fake.iana_id(),
         'BuildingNumber': fake.building_number(),
         'ApartmentNumber': fake.building_number(),
-        'Street': fake.street_name(),
-        'City': fake.city(),
-        'PostalCode': fake.postcode(),
+        'Street': street.name,
+        'City': city_name,
+        'PostalCode': street.postal_code,
         'Email': fake.ascii_email(),
         'Phone': fake.phone_number(),
         'ID_StudentStatus': random.randrange(N_StudentStatus)
     }
 
 def gen_Employee(id):
+    city_name, city = random.choice(list(Locations.cities.items()))
+    street = random.choice(city.streets)
     return {
         'ID': id, 
         'Name': fake.first_name(), 
         'LastName': fake.last_name(), 
-        'Street': fake.street_name(), 
+        'Street': street.name, 
         'ApartmentNumber': fake.building_number(), 
         'BuildingNumber': fake.building_number(), 
-        'City': fake.city(), 
-        'PostalCode': fake.postcode(), 
+        'City': city_name, 
+        'PostalCode': street.postal_code, 
         'Email': fake.ascii_email(), 
         'Phone': fake.phone_number(), 
         'Salary': random.randrange(1000000)/100.0
     }
 
-print(json.dumps(gen_Building(4), indent=3))
+print(gen_Student(6))
+print(gen_Employee(6))
+print(gen_Building(6))
