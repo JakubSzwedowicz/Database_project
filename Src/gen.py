@@ -4,65 +4,27 @@ import json
 import csv
 
 from complex_structures import Locations
-Locations._read_from_file(Locations.directory_path+Locations.locations_filename)
-
-fake = Faker()
 
 N_StudentStatus = 2
-N_ApplicationStatus = 3
-N_Student = 200000
-N_Employee = 4000
-N_Kitchen = 2000
-N_Laundry = 2000
-N_Room = 50000
 
-def gen_Building(id):
+Locations._read_from_file(Locations.directory_path+Locations.locations_filename)
+fake = Faker()
+
+def gen_Building():
     city_name, city = random.choice(list(Locations.cities.items()))
     street = random.choice(city.streets)
-    return {
-        'ID': id, 
-        'Name': fake.color_name() + fake.city_suffix(), 
-        'Street': street.name, 
-        'BuildingNumber': random.randint(1,20), 
-        'City': city_name, 
-        'PostalCode': street.postal_code
-    }
+    return f"('{fake.color_name() + fake.city_suffix()}','{street.name}','{random.randint(1,20)}','{city_name}','{street.postal_code}')"
   
-def gen_Student(id):
+def gen_Student():
     city_name, city = random.choice(list(Locations.cities.items()))
     street = random.choice(city.streets)
-    return {
-        'ID': id,
-        'Name': fake.first_name(),
-        'LastName': fake.last_name(),
-        'StudentNumber': fake.iana_id(),
-        'BuildingNumber': fake.building_number(),
-        'ApartmentNumber': fake.building_number(),
-        'Street': street.name,
-        'City': city_name,
-        'PostalCode': street.postal_code,
-        'Email': fake.ascii_email(),
-        'Phone': fake.phone_number(),
-        'ID_StudentStatus': random.randrange(N_StudentStatus)
-    }
+    return f"('{fake.first_name()}','{fake.last_name()}','{fake.iana_id()}','{fake.building_number()}','{fake.building_number()}','{street.name}','{city_name}','{street.postal_code}','{fake.ascii_email()}','{fake.phone_number()}','{random.randrange(N_StudentStatus)}')"
 
-def gen_Employee(id):
+def gen_Employee():
     city_name, city = random.choice(list(Locations.cities.items()))
     street = random.choice(city.streets)
-    return {
-        'ID': id, 
-        'Name': fake.first_name(), 
-        'LastName': fake.last_name(), 
-        'Street': street.name, 
-        'ApartmentNumber': fake.building_number(), 
-        'BuildingNumber': fake.building_number(), 
-        'City': city_name, 
-        'PostalCode': street.postal_code, 
-        'Email': fake.ascii_email(), 
-        'Phone': fake.phone_number(), 
-        'Salary': random.randrange(1000000)/100.0
-    }
+    return f"('{fake.first_name()}','{fake.last_name()}','{street.name}','{fake.building_number()}','{fake.building_number()}','{city_name}','{street.postal_code}','{fake.ascii_email()}','{fake.phone_number()}','{random.randrange(1000000)/100.0}')"
 
-print(gen_Student(6))
-print(gen_Employee(6))
-print(gen_Building(6))
+print(gen_Student())
+print(gen_Employee())
+print(gen_Building())
