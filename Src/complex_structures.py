@@ -2,7 +2,7 @@
 # Date: 03.11.2022
 # e-mail: kuba.szwedowicz@gmail.com
 
-from database_tables import Tables
+from Src.database_tables import Tables
 from faker import Faker
 from pathlib import Path
 import csv
