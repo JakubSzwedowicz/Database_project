@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 import psycopg2
+from psycopg2.extras import execute_values
 
 from Src import gen
 
@@ -54,19 +55,13 @@ def connect():
             print('Database connection closed.')
 
 
-def insert(sql, values):
+def insert_many(insert_query, data):
     conn = None
-    id = None
     try:
         params = config()
         conn = psycopg2.connect(**params)
         cur = conn.cursor()
-
-        # execute SQL command
-        cur.execute(sql, values)
-
-        # receive id from database
-        id = cur.fetchone()[0]
+        psycopg2.extras.execute_values(cur, insert_query, data)
         conn.commit()
         cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -74,288 +69,204 @@ def insert(sql, values):
     finally:
         if conn is not None:
             conn.close()
-    return id
-
-
-def insert_building():
-    values = gen.gen_Building()
-    sql = f""" INSERT INTO building (name, street, buildingnumber, city, postalcode) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_student():
-    values = gen.gen_Student()
-    sql = f""" INSERT INTO student (name, lastname, studentnumber, buildingnumber, apartmentnumber, street, 
-                city, postalcode, email, phone) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_employee():
-    values = gen.gen_Employee()
-    sql = f""" INSERT INTO employee (name, lastname, street, apartmentnumber, buildingnumber, city, postalcode, email,
-            phone, salary) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_application(students, employees, applications_statuses, utensils, application_types):
-    values = gen.gen_Application(students, employees, applications_statuses, utensils, application_types)
-    sql = f""" INSERT INTO application (id_student, id_employee, status, receivedate, id_applicationtype,
-                id_utensils) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_payment(students):
-    values = gen.gen_Payment(students)
-    sql = f""" INSERT INTO payment (id_student, amount, paymentdate) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_charge(students):
-    values = gen.gen_Charge(students)
-    sql = f""" INSERT INTO charge (id_student, chargedate, amount) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_rent(rooms, students, applications):
-    values = gen.gen_Rent(rooms, students, applications)
-    sql = f""" INSERT INTO rent (id_room, id_student, id_application, expiredate) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_floor(buildings):
-    values = gen.gen_Floor(buildings)
-    sql = f""" INSERT INTO floor (number, id_building) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_kitchen(floors):
-    values = gen.gen_Kitchen(floors)
-    sql = f""" INSERT INTO kitchen (id_floor) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_building_employee(employees, buildings):
-    values = gen.gen_Building_Employee(employees, buildings)
-    sql = f""" INSERT INTO building_employee (id_floor) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_laundry(floors):
-    values = gen.gen_Laundry(floors)
-    sql = f""" INSERT INTO laundry (id_floor) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_parking_spot(buildings):
-    values = gen.gen_ParkingSpot(buildings)
-    sql = f""" INSERT INTO parkingspot (number, id_building) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_room(modules):
-    values = gen.gen_Room(modules)
-    sql = f""" INSERT INTO room (number, id_module) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_module(floors):
-    values = gen.gen_Module(floors)
-    sql = f""" INSERT INTO module (id_floor) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_resident_card(parking_spots, students, card_statuses):
-    values = gen.gen_ResidentCard(parking_spots, students, card_statuses)
-    sql = f""" INSERT INTO residentcard (id_parkingspot, id_student, expiredate, id_status) 
-            VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_student_status():
-    values = gen.gen_Student_Status()
-    sql = f""" INSERT INTO residentcard (status) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_application_type():
-    values = gen.gen_Application_Type()
-    sql = f""" INSERT INTO applicationtype (type) VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
-
-
-def insert_utensils(laundries, kitchens, rooms):
-    values = gen.gen_Utensils(laundries, kitchens, rooms)
-    sql = f""" INSERT INTO applicationtype (description, quantity, id_laundry, id_kitchen, id_room) 
-            VALUES {values} returning id"""
-    id = insert(sql, values)
-    return id
 
 
 def populate_buildings(quantity):
-    buildings = []
+    data = list()
     for i in range(quantity):
-        buildings.append(insert_building())
+        data.append(gen.gen_Building())
 
-    return buildings
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO building (name, street, buildingnumber, city, postalcode) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_employees(quantity):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_employee())
+        data.append(gen.gen_Employee())
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO employee (name, lastname, street, apartmentnumber, buildingnumber," \
+                   " city, postalcode, email, phone, salary) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_rents(quantity, rooms, students, applications):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_rent(rooms, students, applications))
+        data.append(gen.gen_Rent(rooms, students, applications))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO rent (id_room, id_student, id_application, expiredate) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_payments(quantity, students):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_payment(students))
+        data.append(gen.gen_Payment(students))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO payment (id_student, amount, paymentdate) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_charges(quantity, students):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_charge(students))
+        data.append(gen.gen_Charge(students))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO charge (id_student, chargedate, amount) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1, quantity+1))
 
 
 def populate_resident_cards(quantity, parking_spots, students, card_statuses):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_resident_card(parking_spots, students, card_statuses))
+        data.append(gen.gen_ResidentCard(parking_spots, students, card_statuses))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO residentcard (id_parkingspot, id_student, expiredate, id_cardstatus) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_kitchens(quantity, floors):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_kitchen(floors))
-
-    return result
+        data.append(gen.gen_Kitchen(floors))
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO kitchen (id_floor) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1, quantity+1))
 
 
 def populate_laundries(quantity, floors):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_laundry(floors))
+        data.append(gen.gen_Laundry(floors))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO laundry (id_floor) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_modules(quantity, floors):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_module(floors))
+        data.append(gen.gen_Module(floors))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO module (id_floor) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_utensils(quantity, laundries, kitchens, rooms):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_utensils(laundries, kitchens, rooms))
+        data.append(gen.gen_Utensils(laundries, kitchens, rooms))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO utensils (description, quantity, id_laundry, id_kitchen, id_room) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_building_employee(quantity, buildings, employees):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_building_employee(buildings, employees))
+        data.append(gen.gen_Building_Employee(buildings, employees))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO building_employee (id_building, id_employee) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_rooms(quantity, modules):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_room(modules))
+        data.append(gen.gen_Room(modules))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO room (number, id_module) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_floors(quantity, buildings):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_floor(buildings))
+        data.append(gen.gen_Floor(buildings))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO floor (number, id_building) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_applications(quantity, students, employees, applications_statuses, utensils, application_types):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_application(students, employees, applications_statuses, utensils, application_types))
-
-    return result
+        data.append(gen.gen_Application(students, employees, applications_statuses, utensils, application_types))
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO application (id_student, id_employee, id_applicationstatus, receivedate, id_utensils, id_applicationtype) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_parking_spots(quantity, buildings):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_parking_spot(buildings))
+        data.append(gen.gen_ParkingSpot(buildings))
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO parkingspot (number, id_building) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 def populate_students(quantity):
-    result = []
+    data = list()
     for i in range(quantity):
-        result.append(insert_student())
+        data.append(gen.gen_Student())
 
-    return result
+    formatted_data = list(map(eval, data))
+    insert_query = "INSERT INTO student (name, lastname, studentnumber, buildingnumber, apartmentnumber, street, city, postalcode, email, phone, id_studentstatus) VALUES %s"
+    insert_many(insert_query, formatted_data)
+    return list(range(1,quantity+1))
 
 
 if __name__ == '__main__':
-    buildings = populate_buildings(10)
-    floors = populate_floors(20, buildings)
-    kitchens = populate_kitchens(20, floors)
-    laundries = populate_laundries(20, floors)
-    modules = populate_modules(20, floors)
-    rooms = populate_rooms(20, modules)
-    utensils = populate_utensils(50, laundries, kitchens, rooms)
-    parking_spots = populate_parking_spots(20, buildings)
+    buildings = populate_buildings(70)
+    floors = populate_floors(5000, buildings)
+    kitchens = populate_kitchens(5000, floors)
+    laundries = populate_laundries(5000, floors)
+    modules = populate_modules(25000, floors)
+    rooms = populate_rooms(50000, modules)
+    utensils = populate_utensils(100000, laundries, kitchens, rooms)
+    parking_spots = populate_parking_spots(5000, buildings)
 
-    students = populate_students(10)
-    payments = populate_payments(20, students)
-    charges = populate_charges(20, students)
+    students = populate_students(50000)
+    payments = populate_payments(100000, students)
+    charges = populate_charges(100000, students)
 
-    # wpisac to z palca?
+
     card_statuses = [1, 2]
     application_statuses = [1, 2, 3, 4]
     application_types = [1, 2, 3, 4]
-    resident_cards = populate_resident_cards(50, parking_spots, charges, card_statuses)
+    resident_cards = populate_resident_cards(4000, parking_spots, students, card_statuses)
 
-    employees = populate_employees(20)
-    applications = populate_applications(10, students, employees, application_statuses, utensils, application_types)
-    buildings_employees = populate_building_employee(30, buildings, employees)
+    employees = populate_employees(3000)
+    applications = populate_applications(100000, students, employees, application_statuses, utensils, application_types)
+    buildings_employees = populate_building_employee(1000, buildings, employees)
+    rents = populate_rents(50000, rooms, students, applications)
