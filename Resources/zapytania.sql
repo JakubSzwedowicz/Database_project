@@ -82,7 +82,7 @@ ORDER BY r.ExpireDate ASC;
 
 
 /* Wszystkie sumy platnosci i obciazenia studentow - strasznie dlugo */
-SELECT Student.ID, Name, LastName,
+SELECT Student.ID, Student.Name, Student.LastName,
 (SELECT SUM(Payment.Amount)
 FROM Payment
 WHERE Payment.ID_Student=Student.ID) AS Payments,
