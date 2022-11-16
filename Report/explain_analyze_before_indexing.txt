@@ -1,0 +1,242 @@
+                                                                         QUERY PLAN
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+/* wyswietlanie zlozonych wnioskow */
+ Nested Loop  (cost=7279.61..23442.35 rows=100000 width=1044) (actual time=78.058..182.487 rows=100000 loops=1)
+   ->  Nested Loop  (cost=7279.46..20952.10 rows=100000 width=536) (actual time=78.039..143.002 rows=100000 loops=1)
+         ->  Gather Merge  (cost=7279.32..18676.38 rows=100000 width=28) (actual time=77.989..98.615 rows=100000 loops=1)
+               Workers Planned: 1
+               Workers Launched: 1
+               ->  Sort  (cost=6279.31..6426.37 rows=58824 width=28) (actual time=38.867..45.749 rows=50000 loops=2)
+                     Sort Key: a.receivedate DESC
+                     Sort Method: external merge  Disk: 4120kB
+                     Worker 0:  Sort Method: quicksort  Memory: 25kB
+                     ->  Parallel Seq Scan on application a  (cost=0.00..1619.24 rows=58824 width=28) (actual time=0.009..9.085 rows=50000 loops=2)
+         ->  Memoize  (cost=0.14..0.16 rows=1 width=524) (actual time=0.000..0.000 rows=1 loops=100000)
+               Cache Key: a.id_applicationstatus
+               Cache Mode: logical
+               Hits: 99996  Misses: 4  Evictions: 0  Overflows: 0  Memory Usage: 1kB
+               ->  Index Scan using applicationstatus_pkey on applicationstatus  (cost=0.13..0.15 rows=1 width=524) (actual time=0.010..0.010 rows=1 loops=4)
+                     Index Cond: (id = a.id_applicationstatus)
+   ->  Memoize  (cost=0.15..0.17 rows=1 width=524) (actual time=0.000..0.000 rows=1 loops=100000)
+         Cache Key: a.id_applicationtype
+         Cache Mode: logical
+         Hits: 99996  Misses: 4  Evictions: 0  Overflows: 0  Memory Usage: 1kB
+         ->  Index Scan using applicationtype_pkey on applicationtype  (cost=0.14..0.16 rows=1 width=524) (actual time=0.004..0.004 rows=1 loops=4)
+               Index Cond: (id = a.id_applicationtype)
+ Planning Time: 0.276 ms
+ Execution Time: 187.214 ms
+(24 rows)
+
+                                                                QUERY PLAN                                                                 
+-------------------------------------------------------------------------------------------------------------------------------------------
+/* studenci, ktorzy maja co najmniej jeden nowo zlozony wniosek  */
+ Sort  (cost=6843.02..6905.52 rows=25000 width=22) (actual time=170.662..172.396 rows=19666 loops=1)
+   Sort Key: student.lastname, student.name
+   Sort Method: quicksort  Memory: 2017kB
+   ->  HashAggregate  (cost=4766.81..5016.81 rows=25000 width=22) (actual time=61.021..64.800 rows=19666 loops=1)
+         Group Key: student.id
+         Batches: 1  Memory Usage: 2577kB
+         ->  Hash Join  (cost=2067.06..4704.31 rows=25000 width=22) (actual time=18.343..51.534 rows=25034 loops=1)
+               Hash Cond: (application.id_student = student.id)
+               ->  Hash Join  (cost=1.06..2572.69 rows=25000 width=8) (actual time=0.034..21.275 rows=25034 loops=1)
+                     Hash Cond: (application.id_applicationstatus = applicationstatus.id)
+                     ->  Seq Scan on application  (cost=0.00..2031.00 rows=100000 width=16) (actual time=0.012..7.314 rows=100000 loops=1)
+                     ->  Hash  (cost=1.05..1.05 rows=1 width=8) (actual time=0.010..0.013 rows=1 loops=1)
+                           Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                           ->  Seq Scan on applicationstatus  (cost=0.00..1.05 rows=1 width=8) (actual time=0.007..0.008 rows=1 loops=1)
+                                 Filter: ((status)::text = 'RECEIVED'::text)
+                                 Rows Removed by Filter: 3
+               ->  Hash  (cost=1441.00..1441.00 rows=50000 width=22) (actual time=18.044..18.044 rows=50000 loops=1)
+                     Buckets: 65536  Batches: 1  Memory Usage: 3155kB
+                     ->  Seq Scan on student  (cost=0.00..1441.00 rows=50000 width=22) (actual time=0.010..7.436 rows=50000 loops=1)
+ Planning Time: 0.323 ms
+ Execution Time: 174.618 ms
+(21 rows)
+
+                                                                      QUERY PLAN                                                                      
+------------------------------------------------------------------------------------------------------------------------------------------------------
+/* studenci, ktorym wygasla karta mieszkanca (nie posiadają aktualnie aktywnej karty)*/
+ Sort  (cost=2119.22..2124.22 rows=2000 width=22) (actual time=30.853..31.001 rows=3859 loops=1)
+   Sort Key: student.lastname, student.name
+   Sort Method: quicksort  Memory: 341kB
+   ->  HashAggregate  (cost=1989.56..2009.56 rows=2000 width=22) (actual time=14.511..15.162 rows=3859 loops=1)
+         Group Key: student.id
+         Batches: 1  Memory Usage: 721kB
+         ->  Hash Join  (cost=242.31..1984.56 rows=2000 width=22) (actual time=2.115..13.219 rows=4000 loops=1)
+               Hash Cond: (student.id = residentcard.id_student)
+               ->  Seq Scan on student  (cost=98.31..1664.31 rows=25000 width=22) (actual time=0.689..7.109 rows=50000 loops=1)
+                     Filter: (NOT (hashed SubPlan 1))
+                     SubPlan 1
+                       ->  Nested Loop  (cost=0.29..98.31 rows=1 width=8) (actual time=0.676..0.677 rows=0 loops=1)
+                             ->  Seq Scan on residentcard residentcard_1  (cost=0.00..94.00 rows=1 width=8) (actual time=0.676..0.676 rows=0 loops=1)
+                                   Filter: (expiredate > now())
+                                   Rows Removed by Filter: 4000
+                             ->  Index Only Scan using student_pkey on student student_1  (cost=0.29..4.31 rows=1 width=8) (never executed)
+                                   Index Cond: (id = residentcard_1.id_student)
+                                   Heap Fetches: 0
+               ->  Hash  (cost=94.00..94.00 rows=4000 width=8) (actual time=1.411..1.413 rows=4000 loops=1)
+                     Buckets: 4096  Batches: 1  Memory Usage: 189kB
+                     ->  Seq Scan on residentcard  (cost=0.00..94.00 rows=4000 width=8) (actual time=0.011..0.898 rows=4000 loops=1)
+                           Filter: (expiredate < now())
+ Planning Time: 0.359 ms
+ Execution Time: 31.391 ms
+(24 rows)
+
+                                                           QUERY PLAN                                                            
+---------------------------------------------------------------------------------------------------------------------------------
+/* Obciazenia studentow */
+ Sort  (cost=14763.34..15013.34 rows=100000 width=32) (actual time=117.590..127.971 rows=100000 loops=1)
+   Sort Key: s.id
+   Sort Method: external merge  Disk: 4368kB
+   ->  Hash Join  (cost=2066.00..4064.52 rows=100000 width=32) (actual time=15.840..62.847 rows=100000 loops=1)
+         Hash Cond: (charge.id_student = s.id)
+         ->  Seq Scan on charge  (cost=0.00..1736.00 rows=100000 width=18) (actual time=0.011..6.807 rows=100000 loops=1)
+         ->  Hash  (cost=1441.00..1441.00 rows=50000 width=22) (actual time=15.630..15.632 rows=50000 loops=1)
+               Buckets: 65536  Batches: 1  Memory Usage: 3155kB
+               ->  Seq Scan on student s  (cost=0.00..1441.00 rows=50000 width=22) (actual time=0.005..6.586 rows=50000 loops=1)
+ Planning Time: 0.221 ms
+ Execution Time: 133.406 ms
+(11 rows)
+
+                                                                        QUERY PLAN                                                                         
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+/* Budynki */
+ Incremental Sort  (cost=2583.31..180824.14 rows=70 width=77) (actual time=591.958..1236.068 rows=70 loops=1)
+   Sort Key: b.id, b.name
+   Presorted Key: b.id
+   Full-sort Groups: 3  Sort Method: quicksort  Average Memory: 28kB  Peak Memory: 28kB
+   ->  Group  (cost=0.14..180820.99 rows=70 width=77) (actual time=18.367..1235.812 rows=70 loops=1)
+         Group Key: b.id
+         ->  Index Scan using building_pkey on building b  (cost=0.14..13.19 rows=70 width=37) (actual time=0.012..0.310 rows=70 loops=1)
+         SubPlan 1
+           ->  Aggregate  (cost=94.68..94.69 rows=1 width=8) (actual time=0.431..0.431 rows=1 loops=70)
+                 ->  Seq Scan on floor  (cost=0.00..94.50 rows=71 width=8) (actual time=0.007..0.407 rows=71 loops=70)
+                       Filter: (id_building = b.id)
+                       Rows Removed by Filter: 4929
+         SubPlan 2
+           ->  Aggregate  (cost=186.70..186.71 rows=1 width=8) (actual time=1.104..1.104 rows=1 loops=70)
+                 ->  Hash Join  (cost=95.39..186.52 rows=71 width=8) (actual time=0.423..1.087 rows=71 loops=70)
+                       Hash Cond: (kitchen.id_floor = floor_1.id)
+                       ->  Seq Scan on kitchen  (cost=0.00..78.00 rows=5000 width=16) (actual time=0.002..0.286 rows=5000 loops=70)
+                       ->  Hash  (cost=94.50..94.50 rows=71 width=8) (actual time=0.402..0.402 rows=71 loops=70)
+                             Buckets: 1024  Batches: 1  Memory Usage: 12kB
+                             ->  Seq Scan on floor floor_1  (cost=0.00..94.50 rows=71 width=8) (actual time=0.007..0.391 rows=71 loops=70)
+                                   Filter: (id_building = b.id)
+                                   Rows Removed by Filter: 4929
+         SubPlan 3
+           ->  Aggregate  (cost=186.70..186.71 rows=1 width=8) (actual time=1.099..1.099 rows=1 loops=70)
+                 ->  Hash Join  (cost=95.39..186.52 rows=71 width=8) (actual time=0.415..1.085 rows=71 loops=70)
+                       Hash Cond: (laundry.id_floor = floor_2.id)
+                       ->  Seq Scan on laundry  (cost=0.00..78.00 rows=5000 width=16) (actual time=0.002..0.287 rows=5000 loops=70)
+                       ->  Hash  (cost=94.50..94.50 rows=71 width=8) (actual time=0.398..0.398 rows=71 loops=70)
+                             Buckets: 1024  Batches: 1  Memory Usage: 12kB
+                             ->  Seq Scan on floor floor_2  (cost=0.00..94.50 rows=71 width=8) (actual time=0.006..0.387 rows=71 loops=70)
+                                   Filter: (id_building = b.id)
+                                   Rows Removed by Filter: 4929
+         SubPlan 4
+           ->  Aggregate  (cost=547.96..547.97 rows=1 width=8) (actual time=3.846..3.846 rows=1 loops=70)
+                 ->  Hash Join  (cost=95.39..547.07 rows=355 width=8) (actual time=0.423..3.816 rows=357 loops=70)
+                       Hash Cond: (module.id_floor = floor_3.id)
+                       ->  Seq Scan on module  (cost=0.00..386.00 rows=25000 width=16) (actual time=0.002..1.433 rows=25000 loops=70)
+                       ->  Hash  (cost=94.50..94.50 rows=71 width=8) (actual time=0.409..0.409 rows=71 loops=70)
+                             Buckets: 1024  Batches: 1  Memory Usage: 12kB
+                             ->  Seq Scan on floor floor_3  (cost=0.00..94.50 rows=71 width=8) (actual time=0.007..0.398 rows=71 loops=70)
+                                   Filter: (id_building = b.id)
+                                   Rows Removed by Filter: 4929
+         SubPlan 5
+           ->  Aggregate  (cost=1566.88..1566.89 rows=1 width=8) (actual time=11.153..11.154 rows=1 loops=70)
+                 ->  Hash Join  (cost=551.51..1565.11 rows=710 width=8) (actual time=3.834..11.100 rows=714 loops=70)
+                       Hash Cond: (room.id_module = module_1.id)
+                       ->  Seq Scan on room  (cost=0.00..819.00 rows=50000 width=16) (actual time=0.002..2.922 rows=50000 loops=70)
+                       ->  Hash  (cost=547.07..547.07 rows=355 width=8) (actual time=3.817..3.817 rows=357 loops=70)
+                             Buckets: 1024  Batches: 1  Memory Usage: 26kB
+                             ->  Hash Join  (cost=95.39..547.07 rows=355 width=8) (actual time=0.416..3.771 rows=357 loops=70)
+                                   Hash Cond: (module_1.id_floor = floor_4.id)
+                                   ->  Seq Scan on module module_1  (cost=0.00..386.00 rows=25000 width=16) (actual time=0.001..1.404 rows=25000 loops=70)
+                                   ->  Hash  (cost=94.50..94.50 rows=71 width=8) (actual time=0.403..0.403 rows=71 loops=70)
+                                         Buckets: 1024  Batches: 1  Memory Usage: 12kB
+                                         ->  Seq Scan on floor floor_4  (cost=0.00..94.50 rows=71 width=8) (actual time=0.007..0.392 rows=71 loops=70)
+                                               Filter: (id_building = b.id)
+                                               Rows Removed by Filter: 4929
+ Planning Time: 2.141 ms
+ Execution Time: 1236.296 ms
+(59 rows)
+
+                                                          QUERY PLAN                                                          
+------------------------------------------------------------------------------------------------------------------------------
+/* Liczba aktywnych i i niekatywnych studentow */
+ HashAggregate  (cost=1839.37..1840.77 rows=140 width=524) (actual time=29.429..29.433 rows=2 loops=1)
+   Group Key: studentstatus.status
+   Batches: 1  Memory Usage: 40kB
+   ->  Hash Join  (cost=13.15..1589.37 rows=50000 width=524) (actual time=0.041..19.325 rows=50000 loops=1)
+         Hash Cond: (student.id_studentstatus = studentstatus.id)
+         ->  Seq Scan on student  (cost=0.00..1441.00 rows=50000 width=8) (actual time=0.014..3.748 rows=50000 loops=1)
+         ->  Hash  (cost=11.40..11.40 rows=140 width=524) (actual time=0.019..0.021 rows=2 loops=1)
+               Buckets: 1024  Batches: 1  Memory Usage: 9kB
+               ->  Seq Scan on studentstatus  (cost=0.00..11.40 rows=140 width=524) (actual time=0.006..0.007 rows=2 loops=1)
+ Planning Time: 0.181 ms
+ Execution Time: 29.490 ms
+(11 rows)
+
+                                                           QUERY PLAN                                                            
+---------------------------------------------------------------------------------------------------------------------------------
+/* Wyswietlan wszystkich wynajmow*/
+ Sort  (cost=8591.93..8716.93 rows=50000 width=37) (actual time=106.963..113.302 rows=50000 loops=1)
+   Sort Key: r.expiredate
+   Sort Method: external merge  Disk: 2424kB
+   ->  Hash Join  (cost=3510.00..4689.52 rows=50000 width=37) (actual time=29.498..76.912 rows=50000 loops=1)
+         Hash Cond: (r.id_student = student.id)
+         ->  Hash Join  (cost=1444.00..2492.26 rows=50000 width=16) (actual time=11.386..36.854 rows=50000 loops=1)
+               Hash Cond: (r.id_room = room.id)
+               ->  Seq Scan on rent r  (cost=0.00..917.00 rows=50000 width=20) (actual time=0.044..3.565 rows=50000 loops=1)
+               ->  Hash  (cost=819.00..819.00 rows=50000 width=12) (actual time=11.149..11.149 rows=50000 loops=1)
+                     Buckets: 65536  Batches: 1  Memory Usage: 2856kB
+                     ->  Seq Scan on room  (cost=0.00..819.00 rows=50000 width=12) (actual time=0.013..4.769 rows=50000 loops=1)
+         ->  Hash  (cost=1441.00..1441.00 rows=50000 width=29) (actual time=17.871..17.872 rows=50000 loops=1)
+               Buckets: 65536  Batches: 1  Memory Usage: 3539kB
+               ->  Seq Scan on student  (cost=0.00..1441.00 rows=50000 width=29) (actual time=0.010..7.463 rows=50000 loops=1)
+ Planning Time: 0.498 ms
+ Execution Time: 116.759 ms
+(16 rows)
+
+                                                             QUERY PLAN
+------------------------------------------------------------------------------------------------------------------------------------
+/* Wszystkie sumy platnosci i obciazenia studentow - strasznie dlugo */
+Działa tak wolno że nie możemy go wykonać....
+
+                                                             QUERY PLAN                                                             
+------------------------------------------------------------------------------------------------------------------------------------
+/* Pracownicy i liczba wnioskow do nich przypisana */
+ Sort  (cost=3118.63..3126.13 rows=3000 width=30) (actual time=48.722..48.835 rows=3000 loops=1)
+   Sort Key: e.id
+   Sort Method: quicksort  Memory: 310kB
+   ->  HashAggregate  (cost=2915.37..2945.37 rows=3000 width=30) (actual time=47.473..47.892 rows=3000 loops=1)
+         Group Key: e.id
+         Batches: 1  Memory Usage: 625kB
+         ->  Hash Right Join  (cost=121.50..2415.37 rows=100000 width=22) (actual time=1.327..30.853 rows=100000 loops=1)
+               Hash Cond: (application.id_employee = e.id)
+               ->  Seq Scan on application  (cost=0.00..2031.00 rows=100000 width=8) (actual time=0.008..6.613 rows=100000 loops=1)
+               ->  Hash  (cost=84.00..84.00 rows=3000 width=22) (actual time=1.303..1.304 rows=3000 loops=1)
+                     Buckets: 4096  Batches: 1  Memory Usage: 191kB
+                     ->  Seq Scan on employee e  (cost=0.00..84.00 rows=3000 width=22) (actual time=0.008..0.598 rows=3000 loops=1)
+ Planning Time: 0.200 ms
+ Execution Time: 49.153 ms
+(14 rows)
+
+                                                             QUERY PLAN                                                             
+------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=31.20..31.38 rows=70 width=63) (actual time=0.698..0.702 rows=70 loops=1)
+   Sort Key: b.id
+   Sort Method: quicksort  Memory: 32kB
+   ->  HashAggregate  (cost=28.36..29.06 rows=70 width=63) (actual time=0.659..0.675 rows=70 loops=1)
+         Group Key: b.id
+         Batches: 1  Memory Usage: 32kB
+         ->  Hash Right Join  (cost=2.58..23.36 rows=1000 width=55) (actual time=0.045..0.430 rows=1000 loops=1)
+               Hash Cond: (building_employee.id_building = b.id)
+               ->  Seq Scan on building_employee  (cost=0.00..18.00 rows=1000 width=8) (actual time=0.008..0.096 rows=1000 loops=1)
+               ->  Hash  (cost=1.70..1.70 rows=70 width=55) (actual time=0.027..0.028 rows=70 loops=1)
+                     Buckets: 1024  Batches: 1  Memory Usage: 15kB
+                     ->  Seq Scan on building b  (cost=0.00..1.70 rows=70 width=55) (actual time=0.008..0.013 rows=70 loops=1)
+ Planning Time: 0.224 ms
+ Execution Time: 0.744 ms
+(14 rows)
