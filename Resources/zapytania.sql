@@ -88,7 +88,7 @@ FROM Payment
 WHERE Payment.ID_Student=Student.ID) AS Payments,
 (SELECT SUM(Charge.Amount)
 FROM Charge
-WHERE Charge.ID_Student=Student.ID) AS Payments
+WHERE Charge.ID_Student=Student.ID) AS Charges
 FROM Student
 ORDER BY Student.ID;
 
