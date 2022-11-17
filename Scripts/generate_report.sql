@@ -14,7 +14,6 @@ FROM Student
 INNER JOIN Application ON Student.ID=Application.ID_Student
 INNER JOIN ApplicationStatus ON ApplicationStatus.ID=Application.ID_ApplicationStatus
 WHERE ApplicationStatus.Status='RECEIVED'
-GROUP BY Student.ID
 ORDER BY Student.LastName, Student.Name;
 
 
