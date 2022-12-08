@@ -100,3 +100,7 @@ DROP City,
 DROP PostalCode,
 DROP BuildingNumber,
 DROP ApartmentNumber;
+
+ALTER TABLE MyUser
+DROP ID_EmployeeTemp,
+DROP ID_StudentTemp;
