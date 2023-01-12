@@ -2,7 +2,7 @@
 # Date: 03.11.2022
 # e-mail: kuba.szwedowicz@gmail.com
 
-from Src.database_tables import Tables
+from database_tables import Tables
 from faker import Faker
 from pathlib import Path
 import csv
@@ -88,7 +88,7 @@ class Locations:
 
     cities = {}
     directory_path = 'Resources/'
-    locations_filename = 'locations.csv'
+    locations_filename = '../Resources/locations.csv'
 
     class City:
         def __init__(self, name: str):

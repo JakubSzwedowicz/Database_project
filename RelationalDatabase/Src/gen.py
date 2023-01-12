@@ -1,7 +1,7 @@
 from faker import Faker
 import random
 
-from Src.complex_structures import Locations
+from complex_structures import Locations
 
 N_StudentStatus = 2
 

@@ -2,7 +2,7 @@ from configparser import ConfigParser
 import psycopg2
 from psycopg2.extras import execute_values
 
-from Src import gen
+import gen
 
 
 def config(filename=r"./Config/database.ini", section='postgresql'):
