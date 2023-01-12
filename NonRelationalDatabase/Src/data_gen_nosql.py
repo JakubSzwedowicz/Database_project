@@ -1,3 +1,5 @@
+import string
+
 from faker import Faker
 from datetime import timedelta, datetime
 import random
@@ -33,6 +35,10 @@ def generate_postal_codes(count: int):
     return [fake.zipcode() for x in range(count)]
 
 
+def generate_item_names(count: int):
+    return [fake.product_name() for x in range(count)]
+
+
 def generate_ints(count, min, max):
     return [random.randrange(min, max) for x in range(count)]
 
@@ -44,4 +50,12 @@ def generate_floats(count, min, max):
 def generate_dates(count, start, stop):
     start = datetime.strptime(start, "%Y-%m-%d")
     stop = datetime.strptime(stop, "%Y-%m-%d")
-    return [(start+timedelta(days=random.randrange(0, (stop-start).days))) for x in range(count)]
+    return [(start + timedelta(days=random.randrange(0, (stop - start).days))) for x in range(count)]
+
+
+def generate_random_strings(n, x):
+    random_strings = []
+    for i in range(n):
+        s = ''.join(random.choices(string.ascii_letters + string.digits, k=x))
+        random_strings.append(s)
+    return random_strings
