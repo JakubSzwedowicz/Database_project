@@ -1,5 +1,5 @@
 db.createCollection('cars', {
-    validator: {
+  validator: {
     $jsonSchema: {
       bsonType: 'object',
       title: 'Car object validation',

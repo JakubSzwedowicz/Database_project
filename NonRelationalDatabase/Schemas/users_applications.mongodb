@@ -1,0 +1,150 @@
+const utensils_def = {
+   bsonType: 'arrays',
+   items: {
+      bsonType: 'object',
+      required: [
+         description,
+         quantity,
+      ],
+      properties: {
+         description: {
+            bsonType: 'string',
+         },
+         quantity: {
+            bsonType: 'int',
+         },
+      }
+   }
+}
+
+db.createCollection("users_applications",
+   {
+      validator: {
+         $jsonSchema: {
+            bsonType: "object",
+            title: "User Object Validation",
+            required: [
+               applications,
+               student_id,
+            ],
+            properties: {
+               student_id: {
+                  bsonType: 'objectId',
+               },
+               applications:
+               {
+                  bsonType: 'array',
+                  items: {
+                     bsonType: 'object',
+                     required: [
+                        receive_date,
+                        application_type,
+                        application_history,
+                     ],
+                     properties: {
+                        receive_date: {
+                           bsonType: 'date',
+                        },
+                        application_type: {
+                           bsonType: 'string',
+                           'enum': [
+                              'rent',
+                              'parking_spot',
+                              'utensils'
+                           ],
+                        },
+                        application_history: {
+                           bsonType: 'array',
+                           items: {
+                              bsonType: 'object',
+                              required: [
+                                 user_id,
+                                 date_of_change,
+                                 notes,
+                                 status,
+                              ],
+                              properties: {
+                                 user_id: {
+                                    bsonType: 'objectId',
+                                 },
+                                 date_of_change: {
+                                    bsonType: 'date',
+                                 },
+                                 notes: {
+                                    bsonType: 'string',
+                                 },
+                                 status: {
+                                    bsonType: 'string',
+                                    'enum': [
+                                       'not sent',
+                                       'pending',
+                                       'accepted',
+                                       'declined',
+                                    ],
+                                 },
+                                 room_number: {
+                                    bsonType: 'int',
+                                 },
+                                 parking_spot_number: {
+                                    bsonType: 'int',
+                                 },
+                                 prakign_spot_building_number: {
+                                    bsonType: 'string',
+                                 },
+                                 utensils: utensils_def,
+                              },
+                           }
+                        }
+                     }
+                  },
+
+               }
+            }
+         }
+      }
+   })
+
+/*
+rent: {
+                        bsonType: "array"
+                        items: {
+                           bsonType: "object",
+                           required: [
+                              room,
+                              expire_date,
+                              application
+                           ],
+                           properties: {
+                              room: {
+                                 bsonType: "object",
+                                 required: [
+                                    room_number,
+                                    floor_number,
+                                    building_number,
+                                    city,
+                                 ],
+                                 properties: {
+                                    room_number:  {
+                                          bsontype: "int"
+                                          description: "'room_number' must be an integer and is required"
+                                    },
+                                    floor_number:  {
+                                          bsontype: "int"
+                                          description: "'floor_number' must be an integer and is required"
+                                    },
+                                    building_number:  {
+                                          bsontype: "int"
+                                          description: "'building_number' must be an integer and is required"
+                                    },
+                                    city:  {
+                                          bsontype: "string"
+                                          description: "'city' must be a string and is required"
+                                    }
+                                 }
+                              },
+                              payment_date: {
+                                 bsonType: "date"
+                              }
+                           }
+                        }
+*/

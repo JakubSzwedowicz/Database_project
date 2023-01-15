@@ -1,0 +1,109 @@
+const utensils_def = {
+    bsonType: 'arrays',
+    items: {
+        bsonType: 'object',
+        required: [
+            description,
+            quantity,
+        ],
+        properties: {
+            description: {
+                bsonType: 'string',
+            },
+            quantity: {
+                bsonType: 'int',
+            },
+        }
+    }
+}
+
+db.createCollection("buildings",
+    {
+        validator: {
+            $jsonSchema: {
+                bsonType: "object",
+                title: "Building Object Validation",
+                required: [
+                    name,
+                    street,
+                    building_number,
+                    city,
+                    postal_code,
+                ],
+                properties: {
+                    name: {
+                        bsonType: 'string',
+                    },
+                    street: {
+                        bsonType: 'string',
+                    },
+                    building_number: {
+                        bsonType: 'string',
+                    },
+                    city: {
+                        bsonType: 'string',
+                    },
+                    postal_code: {
+                        bsonType: 'string',
+                    },
+                    floors: {
+                        bsonType: 'array',
+                        items: {
+                            bsonType: 'object',
+                            required: [
+                                number,
+                                room,
+                            ],
+                            properties: {
+                                number: {
+                                    bsonType: 'int',
+                                },
+                                room: {
+                                    bsonType: 'array',
+                                    items: {
+                                        bsonType: 'object',
+                                        required: [
+                                            number,
+                                            occupants,
+                                        ],
+                                        properties: {
+                                            number: {
+                                                bsonType: 'int',
+                                            },
+                                            occupants: {
+                                                bsonType: 'array',
+                                                items: {
+                                                    bsonType: 'objectId',
+                                                }
+                                            },
+                                            utensils: utensils_def,
+                                        }
+                                    }
+                                },
+                                utensils: utensils_def,
+                            }
+                        },
+                    },
+
+                    parking_spot: {
+                        bsonType: 'array',
+                        items: {
+                            bsonType: 'object',
+                            required: [
+                                number,
+                                owner_id,
+                            ],
+                            properties: {
+                                number: {
+                                    bsonType: 'int',
+                                },
+                                owner_id: {
+                                    bsonType: 'objectId',
+                                }
+                            },
+                        },
+                    },
+                }
+            }
+        }
+    })

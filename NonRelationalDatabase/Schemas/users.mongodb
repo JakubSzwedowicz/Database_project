@@ -1,0 +1,139 @@
+db.createCollection("users",
+{
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         title: "User Object Validation",
+
+         required: [
+            "first_name",
+            "last_name",
+            "street",
+            "email",
+            "phone_number",
+            "city",
+            "postal_code",
+            "user_type"
+         ],
+
+         properties: {
+            first_name: {
+               bsonType: "string",
+               description: "'first_name' must be a string and is required"
+            },
+            last_name: {
+               bsonType: "string",
+               description: "'last_name' must be a string and is required"
+            },
+            street: {
+               bsonType: "string",
+               description: "'street' must be a string and is required"
+            },
+            email: {
+               bsonType: "string",
+               description: "'email' must be a string and is required"
+            },
+            phone_number: {
+               bsonType: "string",
+               description: "'phone_number' must be a string and is required"
+            },
+            city: {
+               bsonType: "string",
+               description: "'city' must be a string and is required"
+            },
+            postal_code: {
+               bsonType: "string",
+               description: "'postal_code' must be a string and is required"
+            },
+            user_type: {
+               bsonType: "string",
+               'enum': [
+                  'student',
+                  'employee',
+                  'admin'
+               ],
+               description: "'user_type' must be a string and is required"
+            },
+            // Student
+            student_number: {
+               bsontype: "string",
+               description: "'student_number' must be a string and is required",
+            },
+            is_active: {
+               bsonType: "boolean",
+               description: "'student_status' must be a string and is required"
+            },
+            payment: {
+               bsonType: "array",
+               items: {
+                  bsonType: "object",
+                  required: [
+                     amount,
+                     payment_date
+                  ],
+                  properties: {
+                     amount: {
+                        bsonType: "double",
+                        minimum: 0.0
+                     },
+                     payment_date: {
+                        bsonType: "date"
+                     }
+                  }
+               }
+            },
+            charge: {
+               bsonType: "array",
+               items: {
+                  bsonType: "object",
+                  required: [
+                     amount,
+                     payment_date
+                  ],
+                  properties: {
+                     amount: {
+                        bsonType: "double",
+                        minimum: 0.0
+                     },
+                     charge_date: {
+                        bsonType: "date"
+                     }
+                  }
+               }
+            },
+            resident_card: {
+               bsonType: "array",
+               items: {
+                  bsonType: "object",
+                  required: [
+                     expire_date,
+                     is_active,
+                  ],
+                  properties: {
+                     expire_date: {
+                        bsonType: "date"
+                     },
+                     is_active: {
+                        bsonType: "boolean",
+                     },
+                     parking_spot_number: {
+                        bsonType: "int",
+                     },
+                     parking_spot_building_number: {
+                        bsonType: "string",
+                     }
+                  }
+               }
+            },
+            user_applications: {
+               bsonType: 'objectId'
+            },
+            // Employee
+            salary: {
+               bsonType: 'double',
+               minimum: 0.0,
+            },
+         }
+      }
+   }
+} )
