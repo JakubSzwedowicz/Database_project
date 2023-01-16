@@ -7,55 +7,51 @@ import random
 fake = Faker()
 
 
-def generate_first_names(count: int):
-    return [fake.first_name() for x in range(count)]
+def generate_first_name():
+    return fake.first_name()
 
 
-def generate_last_names(count: int):
-    return [fake.last_name() for x in range(count)]
+def generate_last_name():
+    return fake.last_name()
 
 
-def generate_emails(count: int):
-    return [fake.ascii_email() for x in range(count)]
+def generate_email():
+    return fake.ascii_email()
 
 
-def generate_phones(count: int):
-    return [fake.phone_number() for x in range(count)]
+def generate_phone():
+    return fake.phone_number()
 
 
-def generate_streets(count: int):
-    return [fake.street_name() for x in range(count)]
+def generate_street():
+    return fake.street_name()
 
 
-def generate_cities(count: int):
-    return [fake.city() for x in range(count)]
+def generate_city():
+    return fake.city()
 
 
-def generate_postal_codes(count: int):
-    return [fake.zipcode() for x in range(count)]
+def generate_postal_code():
+    return fake.zipcode()
 
 
-def generate_item_names(count: int):
-    return [fake.product_name() for x in range(count)]
+def generate_item_name():
+    return fake.product_name()
 
 
-def generate_ints(count, min, max):
-    return [random.randrange(min, max) for x in range(count)]
+def generate_int(min, max):
+    return random.randrange(min, max)
 
 
-def generate_floats(count, min, max):
-    return [round(random.uniform(min, max), 2) for x in range(count)]
+def generate_float(min, max):
+    return round(random.uniform(min, max), 2)
 
 
-def generate_dates(count, start, stop):
+def generate_date(start, stop):
     start = datetime.strptime(start, "%Y-%m-%d")
     stop = datetime.strptime(stop, "%Y-%m-%d")
-    return [(start + timedelta(days=random.randrange(0, (stop - start).days))) for x in range(count)]
+    return datetime.combine(start + timedelta(days=random.randrange(0, (stop - start).days)), datetime.min.time())
 
 
-def generate_random_strings(n, x):
-    random_strings = []
-    for i in range(n):
-        s = ''.join(random.choices(string.ascii_letters + string.digits, k=x))
-        random_strings.append(s)
-    return random_strings
+def generate_random_string(x):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=x))
