@@ -74,7 +74,8 @@ def populate_users_employee(count: int):
 def populate_buildings(count: int):
     buildings = []
     db_buildings = db['buildings']
-    user_ids = [user["_id"] for user in db.users.find({}, {"_id": 1})]
+    employees_from_db = list(db.users.find({"user_type": "employee"}))
+    student_ids = [student["_id"] for student in db["users"].find({"user_type": "student"})]
 
     for i in range(count):
         building = {
@@ -84,30 +85,35 @@ def populate_buildings(count: int):
             'city': fake.city(),
             'postal_code': fake.zipcode(),
             'floors': [],
-            'parking_spot': []
+            'parking_spot': [],
+            'employees': []
         }
 
+        # Generate random employees
+        for k in range(50, 100):
+            building['employees'].append(random.choice(employees_from_db))
+
         # Generate floors and rooms
-        for i in range(random.randint(1, 5)):
+        for k in range(random.randint(7, 13)):
             floor = {
-                'number': i + 1,
+                'number': k + 1,
                 'room': [],
                 'utensils': []
             }
-            for j in range(random.randint(1, 10)):
+            for j in range(random.randint(15, 30)):
                 room = {
                     'number': j + 1,
-                    'occupants': random.sample(user_ids, random.randint(1, 3)),
+                    'occupants': random.sample(student_ids, random.randint(1, 3)),
                     'utensils': []
                 }
                 floor['room'].append(room)
             building['floors'].append(floor)
 
         # Generate parking spots
-        for i in range(random.randint(1, 10)):
+        for k in range(random.randint(30, 100)):
             parking_spot = {
-                'number': i + 1,
-                'owner_id': random.choice(user_ids)
+                'number': k + 1,
+                'owner_id': random.choice(student_ids)
             }
             building['parking_spot'].append(parking_spot)
 
@@ -116,7 +122,43 @@ def populate_buildings(count: int):
     db_buildings.insert_many(buildings)
 
 
+def populate_applications(count: int):
+    db_applications = db['users_applications']
+    applications = []
+
+    student_ids = [student["_id"] for student in db["users"].find({"user_type": "student"})]
+    employee_ids = [employee["_id"] for employee in db["users"].find({"user_type": "employee"})]
+
+    for i in range(count):
+        student_id = random.choice(student_ids)
+        application = {
+            "student_id": student_id,
+            "applications": [
+                {
+                    "receive_date": generate_date('2000-1-1', '2020-1-1'),
+                    "application_type": random.choice(["rent", "parking_spot", "utensils"]),
+                    "application_history": [
+                        {
+                            "user_id": random.choice(employee_ids),
+                            "date_of_change": generate_date('2000-1-1', '2020-1-1'),
+                            "notes": "fake notes",
+                            "status": random.choice(["not sent", "pending", "accepted", "declined"]),
+                            "room_number": random.randint(1, 100),
+                            "parking_spot_number": random.randint(1, 100),
+                            "parking_spot_building_number": "fake building number",
+                            "utensils": []
+                        }
+                    ]
+                }
+            ]
+        }
+        applications.append(application)
+
+    db_applications.insert_many(applications)
+
+
 if __name__ == '__main__':
-    # populate_users_student(10)
-    # populate_users_employee(10)
-    populate_buildings(10)
+    populate_users_student(20000)
+    populate_users_employee(3000)
+    populate_buildings(15)
+    populate_applications(100000)

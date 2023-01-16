@@ -186,6 +186,64 @@ buildings_validator = {
                         }
                     },
                 },
+            },
+            "employees": {
+                "bsonType": "array",
+                "items": {
+                    "bsonType": "object",
+                    "required": [
+                        "first_name",
+                        "last_name",
+                        "street",
+                        "email",
+                        "phone_number",
+                        "city",
+                        "postal_code",
+                        "user_type"
+                    ],
+                    "properties": {
+                        "first_name": {
+                            "bsonType": "string",
+                            "description": "'first_name' must be a string and is required"
+                        },
+                        "last_name": {
+                            "bsonType": "string",
+                            "description": "'last_name' must be a string and is required"
+                        },
+                        "street": {
+                            "bsonType": "string",
+                            "description": "'street' must be a string and is required"
+                        },
+                        "email": {
+                            "bsonType": "string",
+                            "description": "'email' must be a string and is required"
+                        },
+                        "phone_number": {
+                            "bsonType": "string",
+                            "description": "'phone_number' must be a string and is required"
+                        },
+                        "city": {
+                            "bsonType": "string",
+                            "description": "'city' must be a string and is required"
+                        },
+                        "postal_code": {
+                            "bsonType": "string",
+                            "description": "'postal_code' must be a string and is required"
+                        },
+                        "user_type": {
+                            "bsonType": "string",
+                            "enum": [
+                                'student',
+                                'employee',
+                                'admin'
+                            ], "description": "'user_type' must be a string and is required"
+                        },
+                        "salary": {
+                            "bsonType": "double",
+                            "minimum": 0.0
+                        }
+                    }
+                }
             }
         }
     }
