@@ -1,17 +1,16 @@
 /* wyswietlanie zlozonych wnioskow */
-// TODO
 db.users_applications.aggregate([
 ])
 
 /* studenci, ktorzy maja co najmniej jeden nowo zlozony wniosek  */
-// TODO
 db.users_applications.aggregate([
-    {$unwind:{path:'$applications'}}
-])
-
-/* studenci, ktorym wygasla karta mieszkanca (nie posiadają aktualnie aktywnej karty)*/
-// TODO
-db.users_applications.aggregate([
+    {$unwind:{path:'$applications'}},
+    {$unwind:{path:'$applications.application_history'}},
+    {$match:{'applications.application_history.status':'pending'}},
+    {$project:{
+        _id:0,
+        student_id:1
+    }}
 ])
 
 /* Obciazenia studentow */
@@ -51,7 +50,6 @@ db.users.aggregate([
 ])
 
 /* Wyswietlan wszystkich wynajmow*/
-// TODO
 db.users_applications.aggregate([
     {$unwind:{path:'$applications'}},
     {$match:{'applications.application_type':'rent'}}
@@ -69,7 +67,6 @@ db.users.aggregate([
 ])
 
 /* Pracownicy i liczba wnioskow do nich przypisana */
-// todo?
 employees = db.users_applications.aggregate([
     {$unwind:{path:'$applications'}},
     {$unwind:{path:'$applications.application_history'}},
