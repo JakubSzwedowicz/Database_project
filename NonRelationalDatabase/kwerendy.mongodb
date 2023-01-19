@@ -1,0 +1,83 @@
+/* wyswietlanie zlozonych wnioskow */
+// TODO
+db.users_applications.aggregate([
+])
+
+/* studenci, ktorzy maja co najmniej jeden nowo zlozony wniosek  */
+// TODO
+db.users_applications.aggregate([
+    {$unwind:{path:'$applications'}}
+])
+
+/* studenci, ktorym wygasla karta mieszkanca (nie posiadają aktualnie aktywnej karty)*/
+// TODO
+db.users_applications.aggregate([
+])
+
+/* Obciazenia studentow */
+db.users.aggregate([
+    {$match:{user_type:'student'}},
+    {$unwind:{path:'$charge'}},
+    {$project:{
+        _id:0,
+        first_name:1,
+        last_name:1,
+        'amount':'$charge.amount',
+        'date':'$charge.charge_date'
+    }}
+])
+
+/* Budynki */
+// TODO
+db.buildings.aggregate([
+])
+
+/* Liczba aktywnych i i niekatywnych studentow */
+db.users.aggregate([
+    {
+        $match:{user_type:'student'}
+    },
+    {
+        $group:
+        {
+            _id:'$is_active',
+            count:{$count:{}}
+        }
+    }
+])
+
+/* Wyswietlan wszystkich wynajmow*/
+// TODO
+db.users_applications.aggregate([
+    {$unwind:{path:'$applications'}},
+    {$match:{'applications.application_type':'rent'}}
+])
+
+/* Wszystkie sumy platnosci i obciazenia studentow */
+db.users.aggregate([
+    {$match:{user_type:'student'}},
+    {$project:{
+        _id:0,
+        first_name:1,
+        last_name:1,
+        'balance':{$subtract:[{$sum:'$payment.amount'},{$sum:'$charge.amount'}]}
+    }}
+])
+
+/* Pracownicy i liczba wnioskow do nich przypisana */
+// TODO
+db.users_applications.aggregate([
+])
+
+/* Dane budynkow i ile jest w nich pracownikow */
+db.buildings.aggregate([
+    {$project:{
+        _id:0,
+        name:1,
+        street:1,
+        building_number:1,
+        city:1,
+        postal_code:1,
+        employees:{$size:'$employees'}
+    }}
+])
